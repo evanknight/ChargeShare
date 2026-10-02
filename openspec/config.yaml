@@ -1,0 +1,18 @@
+schema: spec-driven
+
+context: |
+  ChargeShare is a single-vehicle Tesla AC charging reimbursement proof of concept.
+  This is a public repository: use synthetic examples, never real VINs, locations,
+  personal correspondence, receipts, credentials, tokens or private raw data.
+  Proposed runtime: official Tesla receiver, Python processor, SQLite, private view and CSV.
+  Manual shared-charger confirmation first; no location collection or vehicle commands.
+  Vehicle AC telemetry is not guaranteed utility-meter accuracy. Preserve uncertainty.
+  Registration, OAuth, key pairing, hosting, spending and live tests need separate approval.
+
+rules:
+  proposal:
+    - Distinguish proposed behavior from implemented functionality and state non-goals.
+  specs:
+    - Include observable failure, missing-data, privacy and deterministic replay scenarios.
+  tasks:
+    - Keep implementation and externally authorized live setup tasks distinct and unchecked until done.

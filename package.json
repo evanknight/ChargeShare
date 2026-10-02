@@ -1,0 +1,21 @@
+{
+  "name": "chargeshare",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A spec-driven Tesla AC charging reimbursement proof of concept",
+  "scripts": {
+    "spec:validate": "OPENSPEC_TELEMETRY=0 openspec validate --all --strict --no-interactive",
+    "spec:status": "OPENSPEC_TELEMETRY=0 openspec status --change establish-charging-ledger",
+    "spec:list": "OPENSPEC_TELEMETRY=0 openspec list",
+    "security:install": "bash scripts/security/install-hooks.sh",
+    "security:scan": "bash scripts/security/scan.sh history",
+    "security:staged": "bash scripts/security/scan.sh staged",
+    "security:tools": "bash scripts/security/install-gitleaks.sh"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "devDependencies": {
+    "@fission-ai/openspec": "1.14.0"
+  }
+}

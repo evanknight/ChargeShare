@@ -1,0 +1,7 @@
+title = "ChargeShare public repository secret scanning"
+
+[extend]
+useDefault = true
+
+# No blanket allowlists, baselines, or disabled rules. Placeholder examples are
+# scanned too. False positives require review before narrowing any rule.
