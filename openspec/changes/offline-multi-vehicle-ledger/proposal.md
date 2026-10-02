@@ -1,5 +1,10 @@
 # Spec 1: Offline multi-vehicle charging ledger
 
+Implementation approved and applied on 2026-10-02. The original planning/review
+context below is retained as history; current behavior is documented in
+[the offline domain contract](../../../docs/offline-ledger.md). Completion is
+tracked by the checked tasks and [verification](../../../docs/spec1-verification.md).
+
 **Status: draft for review; no application behavior is implemented by this PR.**
 Review this spec first. Implementation starts only after review and a separate,
 explicit request to implement it. Work on one spec at a time.

@@ -1,5 +1,10 @@
 # Tasks
 
+Implementation approved and applied on 2026-10-02. The original planning/review
+context below is retained as history; current behavior is documented in
+[the offline domain contract](../../../docs/offline-ledger.md). Completion is
+tracked by the checked tasks and [verification](../../../docs/spec1-verification.md).
+
 Proposed implementation checklist only. All work is unimplemented and gated on
 review followed by a separate explicit implementation request. Completing the
 planning artifacts or merging this spec PR does not authorize implementation.
@@ -8,23 +13,23 @@ for the current CI boundary, future receiver integration checklist and manual li
 
 ## 1. Scoped offline inputs
 
-- [ ] 1.1 Add Rust domain types for synthetic owners, vehicles, connections and events; verify duplicate registration and missing/unknown identity tests leave state unchanged, and document accepted synthetic input semantics
-- [ ] 1.2 Add checked exact energy representation; verify negative, invalid, unsupported-precision and overflow inputs fail explicitly, and document supported precision
+- [x] 1.1 Add Rust domain types for synthetic owners, vehicles, connections and events; verify duplicate registration and missing/unknown identity tests leave state unchanged, and document accepted synthetic input semantics
+- [x] 1.2 Add checked exact energy representation; verify negative, invalid, unsupported-precision and overflow inputs fail explicitly, and document supported precision
 
 ## 2. Session replay
 
-- [ ] 2.1 Implement vehicle-partitioned replay and deduplication with stable connection/session identities; verify interleaved, shuffled, duplicate, same-position conflict and identical-cross-vehicle fixtures, and document ordering and conflict policy
-- [ ] 2.2 Implement conservative AC deltas and connection grouping; verify pause/resume, new connections, DC/ambiguous type, rollback, missing baseline/end and silence scenarios with explicit flags, and document synthetic versus real-telemetry limits
+- [x] 2.1 Implement vehicle-partitioned replay and deduplication with stable connection/session identities; verify interleaved, shuffled, duplicate, same-position conflict and identical-cross-vehicle fixtures, and document ordering and conflict policy
+- [x] 2.2 Implement conservative AC deltas and connection grouping; verify pause/resume, new connections, DC/ambiguous type, rollback, missing baseline/end and silence scenarios with explicit flags, and document synthetic versus real-telemetry limits
 
 ## 3. Energy accounting isolation
 
-- [ ] 3.1 Add scoped session reads and manual charger classification; verify a cross-vehicle review fails without mutation and confirmation cannot clear evidence flags, and document that scope checks are not authentication
-- [ ] 3.2 Add separate per-vehicle observed and eligible kWh summaries with held/excluded reasons; verify the 10 kWh / 4 kWh example and unconfirmed defaults, and document that no money owed or certified measurement is produced
+- [x] 3.1 Add scoped session reads and manual charger classification; verify a cross-vehicle review fails without mutation and confirmation cannot clear evidence flags, and document that scope checks are not authentication
+- [x] 3.2 Add separate per-vehicle observed and eligible kWh summaries with held/excluded reasons; verify the 10 kWh / 4 kWh example and unconfirmed defaults, and document that no money owed or certified measurement is produced
 
 ## 4. Spec 1 acceptance in GitHub Actions
 
-- [ ] 4.1 Add the complete synthetic replay suite to the normal Rust workspace test command; verify every Spec 1 scenario, exact separate 10 kWh / 4 kWh observed totals, independently confirmed eligible totals, and duplicate/out-of-order replay with stable session identities and flags, without network or credentials
-- [ ] 4.2 Run Rust formatting, clippy, workspace tests, strict OpenSpec validation and staged/history secret scans; inspect the exact diff and document actual results before requesting implementation review
+- [x] 4.1 Add the complete synthetic replay suite to the normal Rust workspace test command; verify every Spec 1 scenario, exact separate 10 kWh / 4 kWh observed totals, independently confirmed eligible totals, and duplicate/out-of-order replay with stable session identities and flags, without network or credentials
+- [x] 4.2 Run Rust formatting, clippy, workspace tests, strict OpenSpec validation and staged/history secret scans; inspect the exact diff and document actual results before requesting implementation review
 - [ ] 4.3 Verify GitHub Actions runs the complete offline suite on every pull request and push from a clean runner using the pinned Rust toolchain and lockfile; ensure no feature suite is silently ignored or skipped, and document the reproducible local command
 - [ ] 4.4 Verify an intentionally wrong expected total makes the test command and CI job fail (not continue-on-error), restore the correct assertion, and capture a passing run for the final commit; retain a safe test summary/failure artifact with no credentials or real data
 

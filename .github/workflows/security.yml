@@ -46,7 +46,7 @@ jobs:
           OPENSPEC_TELEMETRY: '0'
 
   rust:
-    name: Check Rust scaffold
+    name: Offline Spec 1 Rust checks
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -60,4 +60,14 @@ jobs:
       - name: Lint workspace
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Test workspace
-        run: cargo test --workspace --locked
+        run: bash scripts/testing/offline-suite.sh
+      - name: Retain synthetic test summary and failure evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: offline-spec1-test-results
+          path: |
+            target/spec1-test-results/summary.md
+            target/spec1-test-results/workspace-tests.txt
+          retention-days: 7
+          if-no-files-found: error

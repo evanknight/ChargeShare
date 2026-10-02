@@ -1,30 +1,55 @@
 # Testing plan
 
-**Proposed tasks, not implemented tests.** Review Spec 1 before requesting its
-implementation. Work on one spec at a time; the receiver integration needs its
-own later spec. This PR changes no source code or GitHub Actions workflows.
+Spec 1 has been approved for implementation and now has an offline Rust suite.
+Receiver integration still needs its own later reviewed spec.
 
 ## What runs today
 
 [Repository checks](../.github/workflows/security.yml) runs strict OpenSpec
-validation, security guard tests/history scans, and Rust formatting, clippy and
-`cargo test --workspace --locked` on pushes and pull requests. The Rust crate is
-empty: passing CI today does not establish charging or receiver behavior.
+validation, security guard tests/history scans, Rust formatting, clippy and the
+complete `cargo test --workspace --locked` on every push and pull request. The
+pinned Rust 1.99.0 toolchain and Cargo.lock are used on clean hosted runners.
+The wrapper `bash scripts/testing/offline-suite.sh` preserves Cargo's exit status,
+fails on absent/ignored/filtered acceptance tests or fewer than 17 scenarios and produces a safe synthetic
+summary plus test log. The allowlisted artifact has seven-day retention and is
+uploaded on success or failure. No `continue-on-error`, credentials or network
+calls are used in the domain suite. Dependency/tool downloads are setup only.
 
-## Spec 1: offline domain tests
+## Spec 1 scenario coverage
 
-The [active tasks](../openspec/changes/offline-multi-vehicle-ledger/tasks.md)
-require the implemented Rust tests to run automatically in GitHub Actions through
-the normal workspace command, with no Tesla credentials or network dependency.
+All scenarios are exercised in `crates/chargeshare-core/tests/offline_spec1.rs`:
 
-- Replay two fictional vehicles and assert separate observed totals of 10 kWh
-  and 4 kWh; confirm charger eligibility independently
-- Replay duplicates, shuffled/late events and identical cross-vehicle values;
-  assert unchanged totals, stable sessions and no cross-vehicle mixing
-- Cover missing/invalid counters, rollback, missing ending evidence, pause/resume,
-  DC exclusion, unknown identities and cross-vehicle review rejection
-- Map every behavioral spec scenario to a test; zero tests, ignored acceptance
-  tests or a filtered subset are not milestone completion
+- Two interleaved vehicles, independent 10/4 kWh counter boundaries and independent
+  confirmation: `interleaved_ten_and_four_are_separate_and_independently_confirmed`
+- Unknown/missing identities and ambiguous registration:
+  `rejected_identity_and_duplicate_registration_leave_all_state_unchanged`
+- Cross-vehicle review and independent reads:
+  `scoped_reads_and_cross_vehicle_review_never_mutate_other_vehicle`
+- Duplicates/late evidence:
+  `shuffled_duplicates_and_late_evidence_preserve_ids_reviews_flags_and_totals`
+- Matching cross-vehicle events:
+  `identical_events_across_vehicles_are_not_deduplicated_together`
+- Conflicting evidence and interior uncertainty barriers:
+  `same_position_conflicts_hold_all_affected_connections_independent_of_arrival`
+  and `interior_conflicts_break_counter_chain_and_retain_all_safe_evidence_reasons`
+- Pause/resume and new connection:
+  `pause_resume_stays_in_connection_and_new_connection_never_bridges_counters`
+- DC/ambiguous evidence:
+  `dc_ambiguous_and_mixed_type_evidence_is_explicitly_excluded`
+- Bad/rollback counter and confirmation cannot override evidence:
+  `rollback_counts_only_valid_positive_deltas_and_confirmation_cannot_clear_flags`
+  and `invalid_negative_precision_and_overflow_counters_retain_safe_flags_no_invented_delta`
+- Missing start/end/baseline/terminal and silence:
+  `missing_baseline_terminal_and_boundaries_stay_visible`
+  and `silence_never_fabricates_end_time_baseline_or_consumption`
+- Exact parsing, accumulation overflow and deterministic tie/boundary ordering:
+  the remaining arithmetic and boundary tests
+- Run without Tesla access: all fixtures construct only fictional domain values;
+  there are no network or credential dependencies in Cargo.toml
+
+See [domain contract](offline-ledger.md) for precision, synthetic input rules,
+ordering/conflict policy and physical/security limitations. Actual publication
+checks and deliberate-failure evidence are recorded in [verification](spec1-verification.md).
 
 ## Future receiver integration: separate spec
 
