@@ -12,7 +12,7 @@ See [proposal](proposal.md) for motivation and scope. The repository is a greenf
 
 ## Decisions
 
-1. **Official receiver plus Python and SQLite.** Use Tesla's receiver for transport and authentication rather than recreating the vehicle protocol. Enforce the vehicle allowlist before any raw-payload sink and disable unfiltered receiver payload logs. A small processor and persistent SQLite are proportionate to one car. A distributed queue or multi-tenant service adds unproven complexity.
+1. **Official receiver plus Rust and SQLite.** Use Tesla's receiver for transport and authentication rather than recreating the vehicle protocol. Enforce the vehicle allowlist before any raw-payload sink and disable unfiltered receiver payload logs. A small processor and persistent SQLite are proportionate to one car. A distributed queue or multi-tenant service adds unproven complexity.
 2. **AC counter deltas with immutable evidence.** Prefer ACChargingEnergyIn over battery-energy estimates. Keep counter segments and flags; raw evidence and processor offsets must be crash-recoverable. Replay is event-time ordered and idempotent; receipt-time remains diagnostic.
 3. **Manual classification.** Default each session to unconfirmed and require operator confirmation. GPS or charger-account integration can be reconsidered later with explicit data-sharing approval; neither is necessary to demonstrate the ledger.
 4. **Versioned tariffs and review decisions.** Use decimal arithmetic, UTC storage and IANA local-rate lookup. Record estimates as estimates. Long cross-rate gaps block automatic finalization; a generic charging-loss multiplier is not introduced.

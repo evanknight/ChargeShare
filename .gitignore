@@ -43,6 +43,9 @@ replit.nix
 
 # Dependencies, builds, caches, and machine-specific files.
 node_modules/
+target/
+.cargo/
+.rustup/
 .tools/
 .cache/
 .npm/

@@ -33,7 +33,7 @@ try {
   run('git', ['-c', 'user.name=Security Test', '-c', 'user.email=security@example.invalid', 'commit', '--quiet', '-m', 'Synthetic safe fixture']);
   run('bash', ['scripts/security/scan.sh', 'history']);
   let count = 0;
-  for (const path of ['.env', '.env.production', 'config/.env.example', 'production.env', '.npmrc', 'credentials.json', 'keys/server.pem', 'database.sqlite-wal', 'telemetry/session.json', 'data/raw/session.json', 'capture.har', 'token.json', 'service-account.json', 'storage-state.json', 'private-data/session.json']) {
+  for (const path of ['.env', '.env.production', 'config/.env.example', 'production.env', '.npmrc', 'credentials.json', 'keys/server.pem', 'database.sqlite-wal', 'telemetry/session.json', 'data/raw/session.json', 'capture.har', 'token.json', 'service-account.json', 'storage-state.json', 'private-data/session.json', '.cargo/credentials.toml', 'target/debug/app']) {
     put(path, 'synthetic data only\n');
     run('git', ['check-ignore', '--quiet', path]);
     run('git', ['add', '--force', path]);

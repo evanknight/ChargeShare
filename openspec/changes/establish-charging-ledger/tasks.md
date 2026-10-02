@@ -4,7 +4,7 @@ All tasks below are proposed and unimplemented. This scaffold does not authorize
 
 ## 1. Offline evidence and storage
 
-- [ ] 1.1 Add the Python project, pinned dependency setup and synthetic fixture conventions; verify a clean offline development install and document its commands
+- [ ] 1.1 Develop the Rust core module layout, pinned runtime dependencies and synthetic fixture conventions from the minimal Cargo scaffold; verify cargo test --workspace --locked and document the development commands
 - [ ] 1.2 Implement normalized event validation and an explicit single-vehicle allowlist; verify malformed fields and unknown vehicles cannot enter storage or logs
 - [ ] 1.3 Implement durable evidence persistence, payload deduplication and replay offsets; verify duplicate, late and crash/restart fixture tests produce identical results
 - [ ] 1.4 Document data records, private storage boundaries and backup/restore behavior; verify the documented restore procedure against synthetic data

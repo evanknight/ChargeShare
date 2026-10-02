@@ -12,7 +12,7 @@ Build a small, single-car charging ledger using Tesla Fleet Telemetry. It should
 
 - Keep the output simple. A private session list and downloadable CSV should show local start/end times, AC kWh, tariff breakdown, amount, and any unresolved data. A monthly total includes only reviewed sessions.
 
-Proposed components: official Tesla telemetry receiver → pre-persistence vehicle allowlist → durable raw-event file → small Python processor and SQLite → private session view and CSV. Use one always-on host with persistent storage. A static website alone cannot receive this stream. Avoid extra infrastructure until the first real session works.
+Proposed components: official Tesla telemetry receiver → pre-persistence vehicle allowlist → durable raw-event file → small Rust processor and SQLite → private session view and CSV. Use one always-on host with persistent storage. A static website alone cannot receive this stream. Avoid extra infrastructure until the first real session works.
 
 Do not rely on charging_history for the ledger: Tesla’s public documentation does not promise complete private-home AC sessions, and charging_sessions is restricted to business fleet owners. [12]
 

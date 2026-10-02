@@ -5,11 +5,15 @@ This is a design for later implementation. No receiver or application is deploye
 ## Data flow and trust boundaries
 
 1. The single approved vehicle sends Fleet Telemetry to Tesla's official receiver over its supported authenticated transport.
-2. An ingress allowlist is enforced before any raw-payload persistence or logging. Unknown vehicle payloads are rejected without retention; the receiver must have no earlier unfiltered payload sink. Accepted evidence is persisted on encrypted private storage, then a small Python processor normalizes it and records event-time and receipt-time separately.
+2. An ingress allowlist is enforced before any raw-payload persistence or logging. Unknown vehicle payloads are rejected without retention; the receiver must have no earlier unfiltered payload sink. Accepted evidence is persisted on encrypted private storage, then a small Rust processor normalizes it and records event-time and receipt-time separately.
 3. SQLite holds immutable evidence references, derived sessions, versioned tariffs and review decisions. Replay is deterministic and transactional.
 4. A private authenticated session view and CSV exporter present quality flags, manual shared-charger labels and reproducible monthly estimates.
 
 One always-on host with persistent storage is sufficient for this scale. Keep mTLS/WebSocket termination at the official receiver; a generic TLS-terminating reverse proxy must not silently remove Tesla's authentication guarantees. The future dashboard is private. The only public surfaces would be the required telemetry listener and Tesla's public-key discovery path. Do not expose the database, raw files, command proxy or debug endpoints.
+
+## Language boundary
+
+Implement ChargeShare ingestion adapters, session reconstruction, tariff calculations, private view and CSV in Rust. Keep Tesla's official receiver as an external component in its upstream language; do not rewrite its vehicle protocol. The current Cargo workspace contains only an empty core library. SQLite and the private view remain proposed integrations, not dependencies that have been selected or wired yet. Node.js/npm runs OpenSpec and development checks, not the application backend.
 
 ## Proposed records
 

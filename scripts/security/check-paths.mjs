@@ -8,7 +8,7 @@ const forbidden = [
   /(^|\/)\.env(?:\..*)?$/i,
   /(^|\/)[^/]*\.env(?:\..*)?$/i,
   /(^|\/)(?:\.envrc|\.npmrc|\.netrc|\.git-credentials)$/i,
-  /(^|\/)(?:\.auth|\.aws|\.ssh|\.config|\.codex|\.direnv|node_modules|\.tools)(\/|$)/i,
+  /(^|\/)(?:\.auth|\.aws|\.ssh|\.config|\.codex|\.direnv|node_modules|target|\.cargo|\.rustup|\.tools)(\/|$)/i,
   /(^|\/)(?:credentials[^/]*|secrets[^/]*|id_rsa[^/]*|id_ed25519[^/]*)$/i,
   /(^|\/)(?:tokens?\.json|oauth\.json|service[-_]account[^/]*\.json|storage-state[^/]*\.json|cookies[^/]*\.txt)$/i,
   /\.(?:pem|key|p12|pfx|jks|keystore|crt|cer|secret|tokens?|db|sqlite3?|dump|bak|sql|log|har|pcap|pcapng)$/i,

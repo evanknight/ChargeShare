@@ -27,4 +27,4 @@ None. This is a greenfield project with no implemented capabilities.
 
 ## Impact
 
-Proposed implementation: Tesla's official receiver, a small Python processor, SQLite, and a private session view/CSV. An always-on host and app authorization are future dependencies; none is created by the planning scaffold. Real access, domain, budget and deployment require separate approval. This change is proposed and unimplemented. Tesla measurements are not certified utility-meter readings, and live accuracy remains unvalidated.
+Proposed implementation: Tesla's official receiver, a small Rust processor, SQLite, and a private session view/CSV. An always-on host and app authorization are future dependencies; none is created by the planning scaffold. Real access, domain, budget and deployment require separate approval. This change is proposed and unimplemented. Tesla measurements are not certified utility-meter readings, and live accuracy remains unvalidated.

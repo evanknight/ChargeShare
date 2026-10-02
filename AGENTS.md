@@ -2,6 +2,7 @@
 
 This is a public, planning-first repository. Read README.md, docs/security.md and the active OpenSpec change before editing.
 
+- Write application source in Rust. Node.js/npm is for OpenSpec and repository development tooling only.
 - Keep changes inside this repository. Do not import private repositories, personal correspondence or live vehicle data.
 - Use synthetic examples only. Never commit secrets, real VINs, home locations, bills, receipts, account identifiers or contact details.
 - Do not register a Tesla app, pair keys, authorize OAuth, deploy, incur costs, or add vehicle-control features without a separate explicit request.

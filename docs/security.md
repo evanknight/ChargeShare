@@ -60,7 +60,7 @@ false positives carefully rather than disabling a rule or bypassing hooks.
 ## CI and limits
 
 GitHub Actions scans tracked paths and complete fetched history and validates all
-OpenSpec artifacts. Actions are pinned to immutable commit IDs; Gitleaks downloads
+OpenSpec artifacts and the Rust workspace. Actions are pinned to immutable commit IDs; Gitleaks downloads
 are checksum-pinned. Workflow permissions are read-only, checkout does not retain
 credentials, and no repository secrets are required.
 

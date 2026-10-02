@@ -2,17 +2,22 @@
 
 ## Planning-only checkout
 
-Prerequisites: Node.js 24 or newer, npm, Git, Bash, curl, tar, SHA-256 tooling, and the verified Gitleaks version documented in [security](security.md). Runtime implementation choices are proposed; there is no Python application to launch yet.
+Prerequisites: Rust 1.99.0 through [rustup](https://doc.rust-lang.org/book/ch01-01-installation.html), a C linker, Node.js 24 or newer, npm, Git, Bash, curl, tar, SHA-256 tooling, and the verified Gitleaks version documented in [security](security.md). The Cargo workspace is a buildable empty library scaffold, with no application or Tesla integration to launch yet. Rust is the application implementation language; Node.js is development tooling only.
 
 ```sh
 npm ci --ignore-scripts
 npm run spec:validate
 npm run spec:status
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets --locked -- -D warnings
+cargo test --workspace --locked
 ```
 
 The npm package has `private: true` to prevent accidental npm publication. That flag is unrelated to GitHub repository visibility. OpenSpec is pinned to 1.14.0 with registry integrity hashes in the lockfile. Set `OPENSPEC_TELEMETRY=0` or `DO_NOT_TRACK=1` for direct CLI use; the npm scripts already opt out.
 
 Read and follow [security](security.md) before the first commit. Install the hooks through its documented installer; a fresh Git clone does not automatically activate hooks.
+
+`rust-toolchain.toml` pins Rust 1.99.0 with rustfmt and Clippy; `Cargo.lock` is committed. This version was verified against the [official stable manifest](https://static.rust-lang.org/dist/channel-rust-stable.toml) dated 1 October 2026. The crate intentionally has no runtime dependencies or behavior yet; zero domain tests is not application validation.
 
 ## OpenSpec workflow
 

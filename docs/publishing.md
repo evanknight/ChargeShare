@@ -10,7 +10,7 @@ Use a Codex task environment authorized for this repository only, or an already-
 
 1. Clone the intended repository with your normal authenticated Git workflow. Verify the owner, name, public visibility and remote before editing. This scaffold targets the ChargeShare repository whose existing initial README contains only its project title.
 2. Extract `chargeshare-initial-scaffold.zip` outside the clone. Review its `chargeshare/` directory, then copy its contents, including dotfiles, into the clone. Do not replace `.git/` or overwrite any newly added project files without reviewing them.
-3. Use Node.js 24 or newer. Review your Git author metadata; use your verified GitHub noreply address if you do not want a personal email in public commits. Do not change account-wide settings as part of these commands.
+3. Use the pinned Rust toolchain and Node.js 24 or newer. Review your Git author metadata; use your verified GitHub noreply address if you do not want a personal email in public commits. Do not change account-wide settings as part of these commands.
 4. Install tooling and repository-local safeguards:
 
 ```sh
@@ -19,13 +19,17 @@ bash scripts/security/install-gitleaks.sh
 bash scripts/security/install-hooks.sh
 node scripts/security/test-guards.mjs
 npm run spec:validate
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets --locked -- -D warnings
+cargo test --workspace --locked
 ```
 
 5. Stage only the intended source files:
 
 ```sh
 git add .agents .env.example .githooks .github .gitignore .gitleaks.toml .nvmrc \
-  AGENTS.md README.md SECURITY.md docs openspec package.json package-lock.json scripts
+  AGENTS.md README.md SECURITY.md docs openspec package.json package-lock.json scripts \
+  Cargo.toml Cargo.lock rust-toolchain.toml crates
 git diff --cached --check
 npm run security:staged
 git diff --cached
@@ -45,7 +49,7 @@ git push origin HEAD:main
 
 This is a normal fast-forward push; never add `--force`. If the remote changed, stop and integrate the new work deliberately before repeating the checks. Authentication failures require an authorized publishing environment, not a workaround around a denied connection.
 
-7. Verify the exact resulting commit on GitHub, confirm the expected files and public visibility, and wait for both repository-check jobs to pass on that commit. The CI workflow is prepared in this archive but is not evidence of a passed hosted run until published and executed.
+7. Verify the exact resulting commit on GitHub, confirm the expected files and public visibility, and wait for all repository-check jobs to pass on that commit. The CI workflow is prepared in this archive but is not evidence of a passed hosted run until published and executed.
 
 ## Scope remains planning-only
 

@@ -1,43 +1,42 @@
 # ChargeShare
 
-A small, auditable charging ledger for sharing a home charger.
-
-**Status: planning scaffold, not a working application.** ChargeShare is a proposed single-vehicle Tesla Fleet Telemetry proof of concept. It will turn AC charging measurements into a private session list, CSV, and reviewable reimbursement estimate. No Tesla account connection, live vehicle data, deployment, payment, or vehicle control exists here yet.
-
-## The first version
-
-- One allowlisted vehicle; manually confirm sessions at the shared charger
-- `ACChargingEnergyIn` as the starting energy signal, with quality flags and reproducible evidence
-- Versioned flat-rate and time-of-use tariffs, including overnight and daylight-saving boundaries
-- Private session review and CSV; only eligible, reviewed sessions enter monthly totals
-
-Vehicle-reported AC energy is **not guaranteed utility-meter accuracy**. Charging losses, upstream consumption, missing samples and tariff timing require validation. ChargeShare will label estimates and unresolved data instead of presenting them as exact bills.
+A private charging ledger for sharing a home charger, built in Rust.
 
 ## Start here
 
-- [Initial plan and official sources](docs/initial-plan.md)
-- [Architecture and data model](docs/architecture.md)
-- [Development setup](docs/setup.md)
-- [Measurement and validation](docs/measurement.md)
-- [Security and public-repository rules](docs/security.md)
-- [Initial OpenSpec proposal](openspec/changes/establish-charging-ledger/proposal.md)
+1. **Status:** this is a planning and build scaffold. Nothing is connected to Tesla yet
+2. **Next milestone:** prove the AC energy from one charging session, beginning with synthetic Rust fixtures before an approved live test
+3. **When ready:** implement the first milestone from the [initial proposal](openspec/changes/establish-charging-ledger/proposal.md). No need to read every document first
 
-## Spec-driven development
+The first version will track one car, let you mark shared-charger sessions manually, and produce a reviewable electricity reimbursement estimate. Vehicle-reported AC energy is not guaranteed utility-meter accuracy; incomplete or estimated readings will be flagged.
 
-OpenSpec **1.14.0** is pinned in `package.json` and `package-lock.json`. This repository was initialized with the official CLI and its Codex core skills. Start with the proposal, design, three capability specs, and unchecked implementation tasks in `openspec/changes/establish-charging-ledger/`.
+## Develop
+
+The empty Cargo workspace starts at `crates/chargeshare-core/`. Rust 1.99.0 is pinned in `rust-toolchain.toml`; Node.js 24 and OpenSpec 1.14.0 are development tools only.
 
 ```sh
 npm ci --ignore-scripts
+bash scripts/security/install-gitleaks.sh
+bash scripts/security/install-hooks.sh
 npm run spec:validate
-npm run spec:status
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets --locked -- -D warnings
+cargo test --workspace --locked
 ```
 
-In Codex, use `$openspec-propose` to plan future changes and `$openspec-apply-change` only after a plan is approved. Archive after implementation and verification, not merely after writing the plan. `openspec/specs/` is intentionally empty until an implemented change is archived.
+These checks validate the scaffold. Charging logic and its domain tests are not implemented yet. See [setup](docs/setup.md) if needed.
 
-Read [setup](docs/setup.md) and install the local security hooks before committing. The repository contains no secrets or live vehicle fixtures by design; automated scans reduce risk but cannot guarantee that every secret or personal detail will be caught.
+## Keep it safe
 
-## Boundaries
+Only synthetic data belongs here. Never commit tokens, keys, real VINs, locations, bills or raw telemetry. Read [security](docs/security.md) before committing; scanners and hooks reduce risk but cannot guarantee that every secret is caught.
 
-No charging commands, driving controls, payments, location collection, automatic charger matching, or multi-tenant service in the first version. App registration, OAuth, key pairing, hosting and spending require a separate approved step.
+Tesla registration, authorization, key pairing, deployment and spending require separate approval. Vehicle controls and payments are outside the first version.
 
-No project license has been selected yet. Public visibility alone does not grant a general open-source license. OpenSpec-generated skills retain their upstream MIT metadata; see [third-party notices](docs/third-party-notices.md).
+## References, when needed
+
+- [Initial plan](docs/initial-plan.md), [architecture](docs/architecture.md), [measurement limits](docs/measurement.md)
+- [OpenSpec proposal and tasks](openspec/changes/establish-charging-ledger/proposal.md), [publishing](docs/publishing.md)
+
+Use the generated OpenSpec skills to plan changes before implementing them. Archive only after implementation and verification; `openspec/specs/` is intentionally empty for now.
+
+No project license has been selected. Public visibility alone does not grant a general open-source license. OpenSpec-generated files retain their [upstream MIT notice](docs/third-party-notices.md).
