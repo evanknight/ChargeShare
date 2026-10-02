@@ -55,6 +55,15 @@ association supports future design; it is not proof of permission to view data.
 - Conservative holds reduce eligible energy → preferable to silently combining
   counters, inventing missing energy or claiming a settled bill
 
+## Test execution plan
+
+[Testing plan](../../../docs/testing.md) defines the sequence: Spec 1 synthetic Rust
+fixtures in GitHub Actions first, a separately reviewed containerized receiver
+integration suite later, then separately approved manual real-car validation.
+No integration implementation, production credential, vehicle access or workflow
+change is included in this planning PR. The existing workflow runs the empty
+Rust scaffold; new test coverage must be demonstrated after implementation.
+
 ## Migration Plan
 
 This PR publishes planning only. Delete the original unimplemented change;
