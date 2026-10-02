@@ -1,15 +1,70 @@
 # Proposed architecture
 
-> Background only: this earlier research is not the active implementation spec.
-> Its single-vehicle assumptions and broader live/billing scope do not define
-> Spec 1. Review [the fresh offline multi-vehicle proposal](../openspec/changes/offline-multi-vehicle-ledger/proposal.md)
+> Proposed architecture and background research, not an approved implementation spec.
+> Live collection, storage, billing and user access are outside Spec 1. Review [the fresh offline multi-vehicle proposal](../openspec/changes/offline-multi-vehicle-ledger/proposal.md)
 > before any implementation; later features need separately reviewed specs.
 
 This is a design for later implementation. No receiver or application is deployed.
 
+## Architecture at a glance
+
+All components below are **proposed and unimplemented**. The solid path is the
+planned Spec 1 offline exercise; dashed paths are future integrations requiring
+separately reviewed specs and explicit approval.
+
+```mermaid
+flowchart TD
+    fixtures["Synthetic events for multiple vehicles"]
+    rust["Rust ChargeShare logic: separate vehicle sessions and AC energy"]
+    result["Spec 1: per-vehicle test results and eligible kWh"]
+    fixtures --> rust
+    rust --> result
+
+    subgraph future_ingress["Future live ingestion - not approved or implemented"]
+        car_a["Tesla vehicle A"]
+        car_b["Tesla vehicle B"]
+        internet["Internet via Wi-Fi or cellular"]
+        receiver["Official Tesla receiver - separate Go service"]
+        allowlist["Ingress allowlist before payload storage or logging"]
+        broker["Decoded JSON handoff via dispatcher / broker - choice undecided"]
+        car_a -.-> internet
+        car_b -.-> internet
+        internet -. "WebSocket with mTLS terminated at receiver" .-> receiver
+        receiver -.-> allowlist
+        allowlist -.-> broker
+    end
+
+    broker -.-> rust
+
+    subgraph future_output["Future storage and website - not approved or implemented"]
+        db["Private database - SQLite proposed"]
+        view["Rust authenticated read / review layer"]
+        website["Private website - access and sharing policy to review"]
+        db -.-> view
+        view -.-> website
+    end
+
+    rust -.-> db
+```
+
+The Go receiver is a separate process, not Go code embedded in Rust. Its proposed
+handoff to Rust is decoded JSON through a supported dispatcher/broker, not a
+stock Tesla HTTP webhook. Tesla documents decoded dispatcher output and options
+such as Kafka; the broker and durability approach remain undecided. See the
+[official receiver configuration](https://github.com/teslamotors/fleet-telemetry#install-steps).
+
+The allowlist box is a required ingress policy, not an implemented extra service.
+A future integration must enforce it before any receiver sink, payload log or
+broker persistence. Spec 1 bypasses all live transport, database and website
+components: it exercises Rust domain behavior using fictional inputs only.
+Neither a cloud nor home host is selected; a future receiver needs suitable
+public reachability and security. The website must use authenticated application
+access, never direct public database access; owner visibility remains a review
+question rather than approved cross-owner sharing.
+
 ## Data flow and trust boundaries
 
-1. The single approved vehicle sends Fleet Telemetry to Tesla's official receiver over its supported authenticated transport.
+1. Each separately approved vehicle sends Fleet Telemetry to Tesla's official receiver over its supported authenticated transport.
 2. An ingress allowlist is enforced before any raw-payload persistence or logging. Unknown vehicle payloads are rejected without retention; the receiver must have no earlier unfiltered payload sink. Accepted evidence is persisted on encrypted private storage, then a small Rust processor normalizes it and records event-time and receipt-time separately.
 3. SQLite holds immutable evidence references, derived sessions, versioned tariffs and review decisions. Replay is deterministic and transactional.
 4. A private authenticated session view and CSV exporter present quality flags, manual shared-charger labels and reproducible monthly estimates.
@@ -18,7 +73,7 @@ One always-on host with persistent storage is sufficient for this scale. Keep mT
 
 ## Language boundary
 
-Implement ChargeShare ingestion adapters, session reconstruction, tariff calculations, private view and CSV in Rust. Keep Tesla's official receiver as an external component in its upstream language; do not rewrite its vehicle protocol. The current Cargo workspace contains only an empty core library. SQLite and the private view remain proposed integrations, not dependencies that have been selected or wired yet. Node.js/npm runs OpenSpec and development checks, not the application backend.
+Implement ChargeShare ingestion adapters, session reconstruction, tariff calculations, private view and CSV in Rust. Keep Tesla's official Go receiver as a separate external service; do not rewrite its vehicle protocol. The current Cargo workspace contains only an empty core library. SQLite and the private view remain proposed integrations, not dependencies that have been selected or wired yet. Node.js/npm runs OpenSpec and development checks, not the application backend.
 
 ## Proposed records
 
@@ -48,6 +103,6 @@ Tariffs and measurement decisions remain versioned so a statement is reproducibl
 - Repeated Fleet API polling or waking the vehicle adds cost and does not supply the intended telemetry evidence
 - Automatic GPS geofencing adds sensitive data collection before it is needed; manual shared-charger confirmation is the first-version gate
 - Charger-side integration may provide a better meter reference later, subject to owner permission and hardware capability
-- Queues, multiple services and a multi-tenant database are unnecessary until a measured reliability requirement justifies them
+- Broker choice, extra services and multi-tenant database design remain deferred until the receiver handoff and reliability requirements are reviewed
 
 See [initial plan](initial-plan.md) for official source links and [measurement](measurement.md) for validation limits.
