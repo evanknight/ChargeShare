@@ -2,14 +2,14 @@
 
 > Proposed architecture and background research, not an approved implementation spec.
 > Live collection, storage, billing and user access are outside Spec 1. Review [the fresh offline multi-vehicle proposal](../openspec/changes/offline-multi-vehicle-ledger/proposal.md)
-> before any implementation; later features need separately reviewed specs.
+> for its retained review context; later features need separately reviewed specs.
 
 This is a design for later implementation. No receiver or application is deployed.
 
 ## Architecture at a glance
 
-All components below are **proposed and unimplemented**. The solid path is the
-planned Spec 1 offline exercise; dashed paths are future integrations requiring
+The solid path is the **implemented offline Spec 1 exercise**. All other
+components remain proposed and unimplemented; dashed paths are future integrations requiring
 separately reviewed specs and explicit approval.
 
 ```mermaid
