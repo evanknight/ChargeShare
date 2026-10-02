@@ -77,7 +77,7 @@ fn interleaved_ten_and_four_are_separate_and_independently_confirmed() {
     );
     let a_summary = ledger.summary(&vehicle("vehicle-a")).unwrap();
     let b_summary = ledger.summary(&vehicle("vehicle-b")).unwrap();
-    assert_eq!(a_summary.observed_ac, energy("11")); // Deliberate CI gate probe; restored next
+    assert_eq!(a_summary.observed_ac, energy("10"));
     assert_eq!(b_summary.observed_ac, energy("4"));
     assert_eq!(a_summary.owner, owner("owner-a"));
     assert_eq!(b_summary.owner, owner("owner-b"));
