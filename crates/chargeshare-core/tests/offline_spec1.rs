@@ -83,6 +83,7 @@ fn interleaved_ten_and_four_are_separate_and_independently_confirmed() {
     assert_eq!(b_summary.owner, owner("owner-b"));
     assert_eq!(a_summary.eligible_shared_charger, Energy::ZERO);
     assert_eq!(b_summary.eligible_shared_charger, Energy::ZERO);
+    assert_eq!(session(&ledger, "vehicle-a").evidence_label, EVIDENCE_LABEL);
     assert!(a_summary.evidence_label.contains("Synthetic review"));
     assert!(a_summary.evidence_label.contains("accuracy unvalidated"));
     confirm(&mut ledger, "vehicle-a", "connection-1");

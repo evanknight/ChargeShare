@@ -4,6 +4,10 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 
+/// Every derived session and summary is explicitly an offline synthetic review.
+pub const EVIDENCE_LABEL: &str =
+    "Synthetic review: vehicle-reported AC energy; physical accuracy unvalidated";
+
 /// Exact nonnegative kWh with six decimal places (one milliwatt-hour per unit).
 #[derive(Clone, Copy, Debug, Default, Eq, Ord, PartialEq, PartialOrd)]
 pub struct Energy(u64);
@@ -198,6 +202,7 @@ pub enum ExclusionReason {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Session {
+    pub evidence_label: &'static str,
     pub id: SessionId,
     pub owner: OwnerId,
     pub start_time: Option<i64>,
@@ -315,7 +320,7 @@ impl Ledger {
             observed_ac: Energy::ZERO,
             eligible_shared_charger: Energy::ZERO,
             held_or_excluded: Vec::new(),
-            evidence_label: "Synthetic review: vehicle-reported AC energy; physical accuracy unvalidated",
+            evidence_label: EVIDENCE_LABEL,
         };
         for session in self.sessions(scope)? {
             summary.observed_ac = summary
@@ -346,6 +351,7 @@ fn reconstruct(
     classification: ChargerClassification,
 ) -> Result<Session, LedgerError> {
     let mut result = Session {
+        evidence_label: EVIDENCE_LABEL,
         id,
         owner,
         start_time: None,

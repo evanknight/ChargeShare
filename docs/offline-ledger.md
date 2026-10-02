@@ -52,7 +52,8 @@ is also excluded. Classification never clears quality flags. `sessions`,
 `summary` and `classify` require an explicit configured vehicle scope; a target
 for another vehicle is rejected without mutation. There is no combined-owner
 query. Each summary includes scoped owner/vehicle, observed and eligible energy,
-held/excluded reasons and a synthetic, physically unvalidated evidence label.
+held/excluded reasons. Every session and summary carries an explicit synthetic,
+physically unvalidated evidence label.
 
 ## Real-telemetry gap
 
