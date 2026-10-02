@@ -1,5 +1,10 @@
 # Proposed architecture
 
+> Background only: this earlier research is not the active implementation spec.
+> Its single-vehicle assumptions and broader live/billing scope do not define
+> Spec 1. Review [the fresh offline multi-vehicle proposal](../openspec/changes/offline-multi-vehicle-ledger/proposal.md)
+> before any implementation; later features need separately reviewed specs.
+
 This is a design for later implementation. No receiver or application is deployed.
 
 ## Data flow and trust boundaries

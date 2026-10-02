@@ -1,5 +1,10 @@
 # ChargeShare proof of concept plan
 
+> Background only: this earlier research is not the active implementation spec.
+> Its single-vehicle assumptions and broader live/billing scope do not define
+> Spec 1. Review [the fresh offline multi-vehicle proposal](../openspec/changes/offline-multi-vehicle-ledger/proposal.md)
+> before any implementation; later features need separately reviewed specs.
+
 Public project planning document. Examples use invented values. Current scope is a single-vehicle measurement and reimbursement proof of concept; remote vehicle control and payments are out of scope.
 
 Build a small, single-car charging ledger using Tesla Fleet Telemetry. It should record the selected Model Y’s AC charging energy and timing, let you confirm which sessions used the shared garage, and calculate a reviewable monthly reimbursement under the shared-charger electricity account’s tariff.

@@ -1,5 +1,10 @@
 # Measurement boundary and validation
 
+> Background only: this earlier research is not the active implementation spec.
+> Its single-vehicle assumptions and broader live/billing scope do not define
+> Spec 1. Review [the fresh offline multi-vehicle proposal](../openspec/changes/offline-multi-vehicle-ledger/proposal.md)
+> before any implementation; later features need separately reviewed specs.
+
 The central engineering question is whether the selected car's reported AC-session energy is complete and useful for an agreed reimbursement estimate. Passing a parser test cannot answer that physical measurement question.
 
 ## What the first version can claim

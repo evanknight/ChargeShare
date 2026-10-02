@@ -4,11 +4,17 @@ A private charging ledger for sharing a home charger, built in Rust.
 
 ## Start here
 
-1. **Status:** this is a planning and build scaffold. Nothing is connected to Tesla yet
-2. **Next milestone:** replay synthetic charging events in Rust and test the session-energy calculations entirely offline
-3. **When ready:** implement that offline milestone from the [initial proposal](openspec/changes/establish-charging-ledger/proposal.md). Validate against a real Tesla session afterward; no need to read every document first
+1. **Status:** planning-only scaffold; nothing is connected to Tesla
+2. **Review now:** [Spec 1: offline multi-vehicle ledger](openspec/changes/offline-multi-vehicle-ledger/proposal.md)
+3. **Next step:** review the spec, then explicitly request implementation. One spec at a time
 
-The first version will track one car, let you mark shared-charger sessions manually, and produce a reviewable electricity reimbursement estimate. Vehicle-reported AC energy is not guaranteed utility-meter accuracy; incomplete or estimated readings will be flagged.
+Spec 1 proposes replaying synthetic events in Rust while keeping each vehicle's
+sessions, AC energy and eligibility separate. It does not implement user access,
+prices, statements or live collection. Owner visibility is a review assumption,
+not approved sharing. Measurement accuracy remains unvalidated.
+
+The original broad single-vehicle OpenSpec change is deleted, not marked complete.
+Only Spec 1 is active. No implementation is authorized by this planning PR.
 
 ## Develop
 
@@ -34,8 +40,8 @@ Tesla registration, authorization, key pairing, deployment and spending require 
 
 ## References, when needed
 
-- [Initial plan](docs/initial-plan.md), [architecture](docs/architecture.md), [measurement limits](docs/measurement.md)
-- [OpenSpec proposal and tasks](openspec/changes/establish-charging-ledger/proposal.md), [publishing](docs/publishing.md)
+- Earlier background research: [initial plan](docs/initial-plan.md), [architecture](docs/architecture.md), [measurement limits](docs/measurement.md)
+- [Spec 1 proposal and review questions](openspec/changes/offline-multi-vehicle-ledger/proposal.md), [publishing](docs/publishing.md)
 
 Use the generated OpenSpec skills to plan changes before implementing them. Archive only after implementation and verification; `openspec/specs/` is intentionally empty for now.
 

@@ -21,9 +21,9 @@ Read and follow [security](security.md) before the first commit. Install the hoo
 
 ## OpenSpec workflow
 
-1. Review `openspec/changes/establish-charging-ledger/proposal.md`, `design.md`, the three `specs/` files and `tasks.md`
+1. Review `openspec/changes/offline-multi-vehicle-ledger/proposal.md` first, then `design.md`, `specs/vehicle-ledger/spec.md` and `tasks.md`
 2. Refine requirements and acceptance scenarios before implementing
-3. Explicitly request the apply workflow when ready; leave future setup and live-test tasks blocked until separately approved
+3. After review, explicitly request implementation when ready; live setup and later capabilities need separate reviewed specs
 4. Run tests, security scans and strict spec validation; attach actual verification evidence
 5. Archive only after the change is implemented and verified so accepted capabilities move into `openspec/specs/`
 
