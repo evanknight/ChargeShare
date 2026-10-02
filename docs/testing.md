@@ -67,13 +67,14 @@ Carry this checklist into the later integration spec before building it:
 - [ ] Add a GitHub Actions integration job on every pull request and push, with bounded startup/test timeouts and cleanup even on failure; assert that untrusted test certificates are rejected; prove unexpected handshake failures, unavailable dependencies and failed assertions fail the job rather than skip it
 - [ ] Verify the full suite from a clean runner with no developer state or repository secrets; publish a safe result summary and allowlisted failure diagnostics, then record a passing final-commit run before calling the integration complete
 
-Tesla's [test client](https://github.com/teslamotors/fleet-telemetry/blob/main/test/integration/server_test.go)
+Tesla's Fleet Telemetry test client (`test/integration/server_test.go` upstream)
 constructs protobuf payloads inside FlatBuffers messages and uses WSS with local
 certificates. Its example payload contains name/location fields, not a complete
 charging simulation. Adaptation must replace those fields with synthetic charging
-evidence and omit location. The upstream [Makefile](https://github.com/teslamotors/fleet-telemetry/blob/main/Makefile)
-provides certificate-generation and container integration entry points; inspect
-those again at the pinned revision rather than assuming they test ChargeShare.
+evidence and omit location. The upstream `Makefile` provides certificate-generation
+and container integration entry points. A later approved integration spec must
+record the reviewed revision and exact test setup; these upstream examples do not
+test ChargeShare or authorize work beyond the current offline suite.
 
 ## CI isolation and failure evidence
 

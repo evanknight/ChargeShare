@@ -5,6 +5,8 @@ This is contributor guidance for future changes, adapted from the user-supplied
 (`deep-research-report.md`, supplied 2026-10-02). It is not an implementation
 approval or a new product specification. Read it with [AGENTS.md](../AGENTS.md),
 [security](security.md), the approved OpenSpec change, and the actual code/tests.
+The guidance is self-contained. External source names are attribution, not
+instructions to leave the repository or start additional work.
 
 ## 1. Establish scope before designing
 
@@ -65,7 +67,9 @@ Prefer private `mod` declarations and explicit `pub use` exports there. Keep
 implementation in modules named for responsibilities. Expose only what callers
 need; default to private items, and use `pub(crate)` only for necessary internal
 collaboration. Avoid publishing all modules or wildcard re-exports by default.
-Rust's [module/privacy guidance][rust-modules] supports these boundaries.
+Rust's module and privacy rules support these boundaries: child modules can use
+private items in their ancestors; callers outside a module need explicitly public
+items, and `pub(crate)` limits visibility to the current crate.
 
 ### Concrete next-refactor proposal, not the current file tree
 
@@ -105,7 +109,8 @@ force callers to understand details they should not need.
 ## 4. Use onion dependencies without ceremonial layers
 
 The lasting rule is that domain policy stays inward and technical details stay
-outward. This follows [the dependency rule][clean-architecture]. A module or crate
+outward. This follows the dependency rule: imports point toward domain policy,
+never from domain policy toward infrastructure. A module or crate
 is a boundary only if imports and public contracts enforce it.
 
 ```mermaid
@@ -154,7 +159,7 @@ For a separately approved integration:
   to change. Similar-looking code with different policies may remain separate.
   Do not merge fixtures or concepts merely to reduce duplication percentages.
 - **YAGNI:** implement approved behavior, not presumed future features. Improving
-  a needed module boundary is compatible with [YAGNI][yagni]; building unused
+  a needed module boundary is compatible with YAGNI; building unused
   ports, configuration and general-purpose frameworks is not.
 - **SOLID as questions:** check responsibility, substitutable behavior, small
   contracts and inward dependencies. Do not require inheritance, an interface
@@ -234,24 +239,16 @@ replaces rigid size/complexity/coverage thresholds; abstraction requires a real
 need. The diagram above corrects the report's outward dependency arrows. None of
 these recommendations requires adding new quality tooling.
 
-Primary references checked for this adaptation:
+Primary source attribution for this adaptation:
 
-- [Robert C. Martin, The Clean Architecture][clean-architecture]: inward imports
+- Robert C. Martin, *The Clean Architecture*: inward imports
   and separation of policy from infrastructure; no mandatory number of layers.
-- [The Rust Book, Control Scope and Privacy with Modules][rust-modules]: module
+- *The Rust Book*, *Control Scope and Privacy with Modules*: module
   organization and visibility. The proposed ChargeShare split is our design choice.
-- [Martin Fowler, Yagni][yagni]: defer speculative capability without neglecting
+- Martin Fowler, *Yagni*: defer speculative capability without neglecting
   maintainability or tests.
 
 The original report also names *Clean Architecture*, PEP 8, Airbnb/Google style
-guides and SonarQube, and explicitly links these tools/guides. Preserve them here
-as source provenance, not a Rust dependency list or adopted policy:
-[Pylint](https://pylint.org), [Black](https://github.com/psf/black),
-[ESLint](https://eslint.org), [Prettier](https://prettier.io),
-[Checkstyle](https://checkstyle.org), [SpotBugs](https://spotbugs.github.io),
-[PMD](https://pmd.github.io),
-[Google Java Style](https://google.github.io/styleguide/javaguide.html).
-
-[clean-architecture]: https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html
-[rust-modules]: https://doc.rust-lang.org/book/ch07-02-defining-modules-to-control-scope-and-privacy.html
-[yagni]: https://martinfowler.com/bliki/Yagni.html
+guides and SonarQube, plus these tools/guides: Pylint, Black, ESLint, Prettier,
+Checkstyle, SpotBugs, PMD and Google Java Style. These names preserve source
+provenance; they are not a Rust dependency list, adopted policy or research task.

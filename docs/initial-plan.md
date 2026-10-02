@@ -87,28 +87,33 @@ Tesla requires a payment method. Set an approved billing cap and watch it: hitti
 
 Confirm the charger owner’s actual tariff, currency and garage timezone; the accepted measurement/uncertainty policy; a hosting/domain budget and destination. App registration, credentials, key pairing, spending and deployment are future steps requiring approval. No real credentials, tokens, VINs, locations, bills, or personal correspondence belong in this repository.
 
-## Official sources checked on 2 October 2026
+## Official source attribution, checked on 2 October 2026
 
-1. [Available vehicle data](https://developer.tesla.com/docs/fleet-api/fleet-telemetry/available-data)
+The numbered names below attribute the historical research summarized above.
+They are plain source identifiers, not navigation links or instructions to
+research, register, integrate or deploy. Work from the active repository spec;
+later capabilities require their own reviewed scope.
 
-2. [Fleet API FAQ and staging limitations](https://developer.tesla.com/docs/fleet-api/support/faq)
+1. Tesla Fleet Telemetry: Available vehicle data
 
-3. [Fleet Telemetry setup and system behavior](https://developer.tesla.com/docs/fleet-api/fleet-telemetry)
+2. Tesla Fleet API: FAQ and staging limitations
 
-4. [Tesla reference receiver and security guidance](https://github.com/teslamotors/fleet-telemetry)
+3. Tesla Fleet Telemetry: Setup and system behavior
 
-5. [Authentication scope definitions](https://developer.tesla.com/docs/fleet-api/authentication/overview)
+4. Tesla Fleet Telemetry reference receiver and security guidance
 
-6. [Authorization flow and refresh tokens](https://developer.tesla.com/docs/fleet-api/authentication/third-party-tokens)
+5. Tesla Fleet API: Authentication scope definitions
 
-7. [Virtual key developer guide](https://developer.tesla.com/docs/fleet-api/virtual-keys/developer-guide)
+6. Tesla Fleet API: Authorization flow and refresh tokens
 
-8. [Application onboarding](https://developer.tesla.com/docs/fleet-api/getting-started/what-is-fleet-api)
+7. Tesla Fleet API: Virtual key developer guide
 
-9. [Usage based pricing](https://developer.tesla.com/)
+8. Tesla Fleet API: Application onboarding
 
-10. [Billing and limits](https://developer.tesla.com/docs/fleet-api/billing-and-limits)
+9. Tesla developer usage-based pricing
 
-11. [API best practices](https://developer.tesla.com/docs/fleet-api/getting-started/best-practices)
+10. Tesla Fleet API: Billing and limits
 
-12. [Charging history limitations](https://developer.tesla.com/docs/fleet-api/endpoints/charging-endpoints)
+11. Tesla Fleet API: Best practices
+
+12. Tesla Fleet API: Charging endpoint and history limitations

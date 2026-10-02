@@ -50,8 +50,9 @@ flowchart TD
 The Go receiver is a separate process, not Go code embedded in Rust. Its proposed
 handoff to Rust is decoded JSON through a supported dispatcher/broker, not a
 stock Tesla HTTP webhook. Tesla documents decoded dispatcher output and options
-such as Kafka; the broker and durability approach remain undecided. See the
-[official receiver configuration](https://github.com/teslamotors/fleet-telemetry#install-steps).
+such as Kafka; the broker and durability approach remain undecided. This
+background comes from Tesla's Fleet Telemetry receiver configuration guidance;
+it does not select or authorize an integration.
 
 The allowlist box is a required ingress policy, not an implemented extra service.
 A future integration must enforce it before any receiver sink, payload log or
@@ -105,4 +106,4 @@ Tariffs and measurement decisions remain versioned so a statement is reproducibl
 - Charger-side integration may provide a better meter reference later, subject to owner permission and hardware capability
 - Broker choice, extra services and multi-tenant database design remain deferred until the receiver handoff and reliability requirements are reviewed
 
-See [initial plan](initial-plan.md) for official source links and [measurement](measurement.md) for validation limits.
+See [initial plan](initial-plan.md) for background and source attribution, and [measurement](measurement.md) for validation limits.

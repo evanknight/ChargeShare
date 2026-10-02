@@ -2,7 +2,7 @@
 
 ## Offline Spec 1 checkout
 
-Prerequisites: Rust 1.99.0 through [rustup](https://doc.rust-lang.org/book/ch01-01-installation.html), a C linker, Node.js 24 or newer, npm, Git, Bash, curl, tar, SHA-256 tooling, and the verified Gitleaks version documented in [security](security.md). The Cargo workspace implements the offline synthetic ledger and its acceptance suite. There is no executable application or Tesla integration to launch. Rust is the application implementation language; Node.js is development tooling only.
+Prerequisites: Rust 1.99.0 through rustup, a C linker, Node.js 24 or newer, npm, Git, Bash, curl, tar, SHA-256 tooling, and the verified Gitleaks version documented in [security](security.md). The Cargo workspace implements the offline synthetic ledger and its acceptance suite. There is no executable application or Tesla integration to launch. Rust is the application implementation language; Node.js is development tooling only.
 
 ```sh
 npm ci --ignore-scripts
@@ -17,7 +17,7 @@ The npm package has `private: true` to prevent accidental npm publication. That 
 
 Read and follow [security](security.md) before the first commit. Install the hooks through its documented installer; a fresh Git clone does not automatically activate hooks.
 
-`rust-toolchain.toml` pins Rust 1.99.0 with rustfmt and Clippy; `Cargo.lock` is committed. This version was verified against the [official stable manifest](https://static.rust-lang.org/dist/channel-rust-stable.toml) dated 1 October 2026. The crate has no runtime dependencies. Its 17 offline tests validate the fictional domain contract; they do not validate live telemetry or physical accuracy.
+`rust-toolchain.toml` pins Rust 1.99.0 with rustfmt and Clippy; `Cargo.lock` is committed. This version was verified against Rust's official stable toolchain manifest dated 1 October 2026. The crate has no runtime dependencies. Its 17 offline tests validate the fictional domain contract; they do not validate live telemetry or physical accuracy.
 
 ## OpenSpec workflow
 
