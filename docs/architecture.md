@@ -73,6 +73,48 @@ question rather than approved cross-owner sharing.
 All public examples and tests are fictional. Callers must keep real vehicle data
 out of this milestone.
 
+### Core module ownership
+
+The user-approved 2026-10-02 refactor preserves Spec 1 behavior and the existing
+crate-root public API. [The facade](../crates/chargeshare-core/src/lib.rs) declares
+private modules and explicitly re-exports the public domain types:
+
+- [energy](../crates/chargeshare-core/src/energy.rs): exact kWh parsing, formatting,
+  checked addition and crate-private checked counter deltas
+- [identity](../crates/chargeshare-core/src/identity.rs): validated synthetic
+  owner, vehicle and connection aliases, plus compound session identity
+- [event](../crates/chargeshare-core/src/event.rs): typed synthetic evidence and
+  rejected-counter reasons without raw input retention
+- [session](../crates/chargeshare-core/src/session.rs): quality and exclusion
+  policy, charger classification, evidence label and pure connection replay
+- [ledger](../crates/chargeshare-core/src/ledger.rs): in-memory vehicle partitioning,
+  registration, deduplication, scoped reads/reviews and checked summaries
+- [error](../crates/chargeshare-core/src/error.rs): safe ledger failures and
+  diagnostics that never echo rejected values
+
+Energy and error depend only on the standard library. Identity depends on error;
+event on identity and energy; session on identity, event, energy and error;
+ledger on these domain modules. No implementation imports through the public
+facade, and no domain module depends on an adapter or external service.
+
+The smallest viable split replaces the single implementation file with cohesive
+private modules. Keeping one file would avoid movement but leave unrelated
+responsibilities coupled; an application crate, replay submodule, traits or
+adapter interfaces would add boundaries without an approved consumer. They remain
+deferred with persistence, live ingestion, authentication, pricing and UI.
+
+Ledger replay groups already vehicle-partitioned evidence by connection, marks
+conflicts explicitly with a named internal evidence type, and stably sorts by
+`(time, position)` before pure reconstruction. Session replay preserves every
+conflict barrier and quality reason. Counter subtraction stays inside `Energy`;
+a negative delta is a rollback, never wrapping arithmetic. No representation,
+public signature, event ordering, data format or runtime dependency changes.
+
+The unchanged [17 public acceptance scenarios](testing.md#spec-1-scenario-coverage)
+prove scoped isolation, deterministic replay, conservative energy and failure
+behavior. Focused arithmetic tests additionally cover the internal delta at zero,
+equal counters, the maximum representable value and rollback.
+
 ### Accepted input
 
 Construct `OwnerId`, `VehicleId` and `ConnectionId` from synthetic aliases of

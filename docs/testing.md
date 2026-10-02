@@ -78,6 +78,33 @@ The historical review/planning context is retained in the active OpenSpec change
 These checks are repeated before each publication. Hosted deliberate-failure and
 restored passing-run evidence is recorded below.
 
+### Code design refactor verification
+
+The user-approved 2026-10-02 behavior-preserving refactor applies the
+[module ownership decision](architecture.md#core-module-ownership). The public
+crate-root API and all 17 offline acceptance scenarios are unchanged; two focused
+unit tests cover the crate-private checked delta at zero/equality, maximum energy
+and rollback. No feature, dependency, live adapter or infrastructure is added.
+
+- Pinned Rust 1.99.0 formatting and clippy with warnings denied: passed
+- Complete workspace suite through `offline-suite.sh`: 19 passed, including all
+  17 unchanged acceptance scenarios; zero failed, ignored or filtered
+- Strict OpenSpec validation and all security guard fixtures: passed
+- A temporary differential replay probe compared baseline and refactored results
+  for 1,000 deterministic synthetic sequences containing 120,000 events, plus
+  parser outcomes, duplicate ingestion, scoped reads/reviews, conflicts,
+  incomplete evidence and overflow: every snapshot matched
+- Independent read-only review compared public declarations/signatures, replay,
+  delta arithmetic, module dependencies and documentation against the baseline:
+  no blockers or actionable findings; the reviewer also repeated the full local
+  formatting, clippy, workspace, OpenSpec and guard checks
+- Core implementation source contains no code or documentation comments;
+  contracts and rationale are retained in these three guides
+
+Staged/history scans and exact diff review are repeated before publication.
+Hosted checks must pass on the actual final refactor commit; the historical runs
+below do not establish that result.
+
 ### Hosted gate evidence
 
 - Initial correct implementation `f4e30001a197dbf4398be259989808ff9c379f74`:

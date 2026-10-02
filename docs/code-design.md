@@ -54,9 +54,10 @@ Use self-documenting code instead:
   in repository Markdown or the approved change's design, linked from relevant
   docs. Keep that documentation aligned with code and tests.
 
-Existing source comments are retained; future approved code changes must follow
-the rule above. If a required license notice, generated file convention, safety
-obligation or tool requirement requires a code comment, preserve the required content and ask how to resolve the conflict;
+Previously authored comments outside the refactored implementation are retained;
+future approved code changes must follow the rule above. If a required license
+notice, generated file convention, safety obligation or tool requirement requires
+a code comment, preserve the required content and ask how to resolve the conflict;
 do not silently remove it or invent an exception.
 
 ## 3. Keep a small facade and cohesive domain modules
@@ -70,13 +71,15 @@ Rust's module and privacy rules support these boundaries: child modules can use
 private items in their ancestors; callers outside a module need explicitly public
 items, and `pub(crate)` limits visibility to the current crate.
 
-### Concrete next-refactor proposal, not the current file tree
+### Implemented offline core module layout
 
-At the time this guide was added, the core implementation is in
-`crates/chargeshare-core/src/lib.rs`. The following split maps its existing
-responsibilities; no files below are created by this guide:
+The user-approved behavior-preserving refactor on 2026-10-02 applies the
+following split under `crates/chargeshare-core/src/`. This is the current file
+tree; it adds no feature, runtime dependency or infrastructure layer. See the
+[architecture decision](architecture.md#core-module-ownership) for its contract
+and trade-off.
 
-| Proposed file under `src/` | Responsibility and existing items |
+| File under `src/` | Responsibility and existing items |
 | --- | --- |
 | `lib.rs` | Private module declarations and selected root public re-exports |
 | `energy.rs` | `Energy`, `CounterProblem`, exact parsing, formatting and checked arithmetic |
@@ -86,13 +89,13 @@ responsibilities; no files below are created by this guide:
 | `ledger.rs` | `Ledger`, scoped registration/ingestion/reviews/reads, `Summary` and `SessionReasons` |
 | `error.rs` | Safe `LedgerError` variants and error formatting |
 
-Keep the current crate-root API available to callers during a behavior-preserving
-split, including the integration tests that import `chargeshare_core::*`. Moving
-code must not require making private `Energy` representation public; keep checked
-delta arithmetic with `Energy` and expose only the minimal internal operation
-needed by reconstruction. Preserve validation and safe diagnostics.
+The crate-root API remains available to callers, including integration tests
+that import `chargeshare_core::*`. `Energy` retains its private representation;
+its crate-private checked delta operation is the only extra arithmetic boundary
+needed by reconstruction. Validation and safe diagnostics are unchanged. Keep
+these properties during later approved changes.
 
-Suggested internal dependencies are acyclic: identity uses error; event uses
+Implemented internal dependencies are acyclic: identity uses error; event uses
 identity/energy; session uses identity/event/energy/error; ledger uses those
 domain modules and error. Energy/error do not depend on ledger or infrastructure.
 If this split creates a cycle, reconsider ownership rather than routing imports
@@ -243,7 +246,7 @@ Primary source attribution for this adaptation:
 - Robert C. Martin, *The Clean Architecture*: inward imports
   and separation of policy from infrastructure; no mandatory number of layers.
 - *The Rust Book*, *Control Scope and Privacy with Modules*: module
-  organization and visibility. The proposed ChargeShare split is our design choice.
+  organization and visibility. The ChargeShare split is our design choice.
 - Martin Fowler, *Yagni*: defer speculative capability without neglecting
   maintainability or tests.
 
