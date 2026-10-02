@@ -5,8 +5,8 @@ A private charging ledger for sharing a home charger, built in Rust.
 ## Start here
 
 1. **Status:** this is a planning and build scaffold. Nothing is connected to Tesla yet
-2. **Next milestone:** prove the AC energy from one charging session, beginning with synthetic Rust fixtures before an approved live test
-3. **When ready:** implement the first milestone from the [initial proposal](openspec/changes/establish-charging-ledger/proposal.md). No need to read every document first
+2. **Next milestone:** replay synthetic charging events in Rust and test the session-energy calculations entirely offline
+3. **When ready:** implement that offline milestone from the [initial proposal](openspec/changes/establish-charging-ledger/proposal.md). Validate against a real Tesla session afterward; no need to read every document first
 
 The first version will track one car, let you mark shared-charger sessions manually, and produce a reviewable electricity reimbursement estimate. Vehicle-reported AC energy is not guaranteed utility-meter accuracy; incomplete or estimated readings will be flagged.
 
