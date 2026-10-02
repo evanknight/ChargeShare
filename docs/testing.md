@@ -1,4 +1,4 @@
-# Testing plan
+# Testing and verification
 
 Spec 1 has been approved for implementation and now has an offline Rust suite.
 Receiver integration still needs its own later reviewed spec.
@@ -47,9 +47,65 @@ All scenarios are exercised in `crates/chargeshare-core/tests/offline_spec1.rs`:
 - Run without Tesla access: all fixtures construct only fictional domain values;
   there are no network or credential dependencies in Cargo.toml
 
-See [domain contract](offline-ledger.md) for precision, synthetic input rules,
-ordering/conflict policy and physical/security limitations. Actual publication
-checks and deliberate-failure evidence are recorded in [verification](spec1-verification.md).
+See the [domain contract](architecture.md#implemented-offline-ledger) for precision,
+input rules, ordering/conflicts and physical/security limits, and [SECURITY.md](../SECURITY.md)
+for publication safeguards. Verification evidence is retained below.
+
+## Spec 1 verification
+
+Implementation approved and applied on 2026-10-02. Only synthetic offline Rust
+behavior is delivered; physical accuracy, user authorization, persistence, actual
+Go receiver integration and live-car validation remain outside this milestone.
+The historical review/planning context is retained in the active OpenSpec change.
+
+### Local checks
+
+- Rust 1.99.0: formatting and clippy with warnings denied passed
+- `cargo test --workspace --locked`: 17 passed, zero failed/ignored/filtered
+- `bash scripts/testing/offline-suite.sh`: same complete command and passing summary
+- Checked exact six-decimal arithmetic and session/aggregate overflow
+- Every behavioral Spec 1 scenario mapped above
+- Independent review identified an interior conflicting sample could bridge an
+  uncertain AC interval; fixed by conflict barriers retaining all safe evidence
+  reasons, with forward/reverse regression coverage
+
+- Strict OpenSpec validation: 1 change passed, zero failed
+- Security guard tests: safe scans passed; 17 sensitive paths and a synthetic token blocked
+- Staged and all-history Gitleaks 8.30.1 scans: passed, zero leaks
+- Exact staged paths/diff reviewed: only public-safe Rust source, fictional fixture
+  values, CI script/workflow and project/spec status documentation
+
+These checks are repeated before each publication. Hosted deliberate-failure and
+restored passing-run evidence is recorded below.
+
+### Hosted gate evidence
+
+- Initial correct implementation `f4e30001a197dbf4398be259989808ff9c379f74`:
+  GitHub Actions push run `37060010078` and PR run `37060017575`
+  passed all three jobs from clean hosted runners
+- Deliberate wrong-total probe `4fe4a2d9a7815a59a45c2fa6a1f69fdc94bed3c6`
+  changed only the expected vehicle-a total from 10 to 11 kWh.
+  The normal local test command and CI wrapper both exited 101.
+  Hosted GitHub Actions run `37060083478`
+  failed its Rust job at `Test workspace`: actual 10 kWh, expected 11 kWh;
+  16 passed, 1 failed, 0 ignored/filtered. OpenSpec and security still passed.
+  The always-running artifact step succeeded, retaining
+  `offline-spec1-test-results` (artifact 11250295410, seven-day retention).
+  No errors were masked and no environment/credential/real-data dump was uploaded.
+- Correct 10 kWh assertion restored in `349e19e0fccb615db3f7ca8fda13986fc5f8d7ba`:
+  GitHub Actions push run `37060298181` and PR run `37060303844`
+  passed all three jobs, with all 17 domain tests passing
+- Final application/test source `7df1b916774b973ec63ca4c0506b3ed21328db1e`
+  also labels each session explicitly as synthetic and physically unvalidated:
+  GitHub Actions push run `37060409228` and PR run `37060416344`
+  both passed. Subsequent completion edits change documentation/task state only.
+  Verify each exact publication head and its terminal hosted checks before
+  reporting completion; historical runs do not verify later commits.
+
+Independent read-only review approved the corrected core and CI wrapper; eight
+isolated guard smoke cases verified propagation of exit 101 and rejection of
+missing, zero, reduced, ignored or filtered acceptance suites. There are no
+outstanding review blockers. Review does not replace the hosted final-SHA check.
 
 ## Future receiver integration: separate spec
 
@@ -78,11 +134,11 @@ test ChargeShare or authorize work beyond the current offline suite.
 
 ## CI isolation and failure evidence
 
-Both automated suites must fail their CI job on failure; do not mask failures
+The offline suite and any future receiver suite must fail their CI job on failure; do not mask failures
 with `continue-on-error`. Keep human-readable test counts/results in the run
 summary and upload only allowlisted synthetic diagnostics when useful, including
-on failure. Pin the artifact action and define a short retention period when
-implementing it. A deliberate assertion failure followed by a restored passing
+on failure. The offline artifact action is pinned with seven-day retention; preserve those
+limits for future suites. A deliberate assertion failure followed by a restored passing
 run demonstrates the gate. Requiring these checks in branch protection is a
 separate repository setting; this document does not configure it.
 
@@ -98,8 +154,24 @@ from the isolated test traffic itself.
 ## Manual real-car validation gate
 
 A future, separately approved supervised trial must confirm actual vehicle signal
-support, counter/reset semantics, session boundaries, final samples and physical
-measurement limits. Agree on private evidence handling and any independent meter
-comparison first. Real charging, OAuth/key pairing, deployment and costs are not
+support, counter/reset semantics, session boundaries, final samples and the
+[measurement boundary](architecture.md#measurement-boundary). Observe at least
+five supervised sessions over approximately one week, including pause/resume and
+a time-of-use boundary if applicable. Privately record firmware, telemetry
+configuration, baseline/end readings, disconnects and unresolved gaps. Agree
+private evidence handling first; obtain permission for any independent AC meter
+reference and agree a comparison tolerance. Without a reference, retain the
+unvalidated-accuracy label and agree that limitation before reimbursement.
+
+Retain flags for missing baseline/terminal sample, rollback/reset ambiguity,
+invalid signal, long gaps, ambiguous AC/DC state, unconfirmed charger, estimated
+tariff allocation and unvalidated physical accuracy. Later pricing tests must
+cover flat rates, time-of-use splits, DST, month-end, tariff revisions, rounding,
+replay without double-counting and long cross-rate gaps that block finalization.
+Synthetic examples: 10 kWh at 0.20 currency units/kWh is 2.00 units; 4 kWh at
+0.20 plus 6 kWh at 0.40 is 3.20 units before separately agreed charges. Only
+reviewed, complete AC shared-charger sessions may enter a later payable total.
+These are future acceptance requirements, not implemented billing behavior.
+Real charging, OAuth/key pairing, deployment and costs are not
 automated CI tests and are not authorized by this plan. Passing simulated tests
 proves software behavior for those fixtures, not utility-meter accuracy.

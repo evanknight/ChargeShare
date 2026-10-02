@@ -4,47 +4,95 @@ A private charging ledger for sharing a home charger, built in Rust.
 
 ## Start here
 
-1. **Implemented:** offline, in-memory synthetic multi-vehicle Rust ledger
-2. **Review:** [Spec 1](openspec/changes/offline-multi-vehicle-ledger/proposal.md) and [domain contract](docs/offline-ledger.md)
-3. **Verified behavior:** separate observed AC energy and conservative shared-charger eligibility, with deterministic replay and explicit uncertainty
+Spec 1 implements an offline, in-memory synthetic multi-vehicle ledger with
+separate observed AC energy and conservative shared-charger eligibility,
+deterministic replay and explicit uncertainty. Nothing is connected to Tesla.
+Owner/vehicle scope checks are not authentication or approved cross-owner sharing;
+physical measurement accuracy is unvalidated. Prices, bills, statements, live
+collection, receiver integration, persistence, UI and deployment are outside scope.
 
-Spec 1 was approved for implementation after the planning review. It replays
-fictional events only. Nothing is connected to Tesla. Owner associations and
-vehicle scope checks are not authentication or approved cross-owner sharing.
-Physical measurement accuracy remains unvalidated. No prices, bills, statements,
-live collection, receiver integration or deployment are included.
+The three guides in `docs/` are:
 
-The original broad single-vehicle OpenSpec change was deleted, not marked complete.
-Only Spec 1 is active. Its planning artifacts retain the original review context.
+- [Architecture and domain contract](docs/architecture.md): implemented behavior,
+  system diagram, measurement limits and proposed integration boundaries
+- [Code design](docs/code-design.md): self-documenting, agent-friendly code,
+  cohesive modules, inward dependencies and the decision/review workflow
+- [Testing](docs/testing.md): commands, scenario coverage, verification evidence
+  and later receiver/real-car validation gates
+
+Only [Spec 1](openspec/changes/offline-multi-vehicle-ledger/proposal.md) is active.
+The earlier broad single-vehicle change was deleted, not marked complete. Active
+planning artifacts retain their original review context. `openspec/specs/` is
+intentionally empty until the approved change is implemented, verified and archived.
 
 ## Develop
 
-The Cargo workspace starts at `crates/chargeshare-core/`. Rust 1.99.0 is pinned in `rust-toolchain.toml`; Node.js 24 and OpenSpec 1.14.0 are development tools only.
+The Cargo workspace starts at `crates/chargeshare-core/`. There is no executable
+application or Tesla integration to launch. Rust is the application language;
+Node.js/npm is development tooling only.
+
+Prerequisites: Rust 1.99.0 through rustup with rustfmt/Clippy, a C linker, Node.js
+24 or newer, npm, Git, Bash, curl, tar and SHA-256 tooling. The toolchain is pinned
+in `rust-toolchain.toml`; `Cargo.lock` is committed and the core has no runtime
+dependencies. OpenSpec 1.14.0 is pinned with registry integrity hashes.
 
 ```sh
 npm ci --ignore-scripts
 bash scripts/security/install-gitleaks.sh
 bash scripts/security/install-hooks.sh
 npm run spec:validate
+npm run spec:status
+node scripts/security/test-guards.mjs
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --locked -- -D warnings
-cargo test --workspace --locked
+bash scripts/testing/offline-suite.sh
 ```
 
-These checks include every offline Spec 1 domain scenario. See [testing](docs/testing.md) for coverage and CI evidence, and [setup](docs/setup.md) if needed.
+The suite runs complete `cargo test --workspace --locked` and retains synthetic
+output under ignored `target/spec1-test-results/`. See [testing](docs/testing.md)
+for coverage and CI evidence. Read [SECURITY.md](SECURITY.md) before committing;
+a fresh clone does not activate hooks automatically. Gitleaks 8.30.1 is downloaded
+from its official release and checksum-verified by the installer.
 
-## Keep it safe
+The npm package's `private: true` prevents npm publication, not GitHub visibility.
+The npm OpenSpec scripts opt out of telemetry; use `OPENSPEC_TELEMETRY=0` or
+`DO_NOT_TRACK=1` for direct CLI commands. `.env.example` contains inert placeholders;
+copying it neither creates credentials nor authorizes live operation.
 
-Only synthetic data belongs here. Never commit tokens, keys, real VINs, locations, bills or raw telemetry. Read [security](docs/security.md) before committing; scanners and hooks reduce risk but cannot guarantee that every secret is caught.
+## Change and publication workflow
 
-Tesla registration, authorization, key pairing, deployment and spending require separate approval. Vehicle controls and payments are outside the first version.
+1. Read [AGENTS.md](AGENTS.md), the three guides and the active change's
+   [proposal](openspec/changes/offline-multi-vehicle-ledger/proposal.md),
+   [design](openspec/changes/offline-multi-vehicle-ledger/design.md),
+   [scenarios](openspec/changes/offline-multi-vehicle-ledger/specs/vehicle-ledger/spec.md)
+   and [tasks](openspec/changes/offline-multi-vehicle-ledger/tasks.md).
+2. Use the generated OpenSpec skills under `.agents/skills/` to propose/refine
+   requirements and scenarios. Obtain explicit implementation approval for new
+   behavior; later capabilities need separately reviewed specs.
+3. Run all applicable tests, strict spec validation and [publication safeguards](SECURITY.md#before-every-publication).
+   Stage only intended files and review the complete staged diff and commit author
+   metadata. Stop on scanner findings or unexpected files; never bypass hooks.
+4. Publish only to the authorized repository/branch with a normal fast-forward
+   push. If the remote changed, integrate deliberately and repeat checks; never
+   force-push or replace Git history as a shortcut.
+5. Verify the exact remote commit and terminal hosted checks before claiming
+   completion. Archive only after implementation and verification. Passing checks
+   do not authorize merging, deployment, Tesla registration, OAuth/key pairing,
+   credential creation, vehicle access or spending.
 
-## References, when needed
+## Licensing and tooling provenance
 
-- Earlier background research: [initial plan](docs/initial-plan.md), [architecture](docs/architecture.md), [measurement limits](docs/measurement.md)
-- Contributor design guidance: [code and architecture design for coding agents](docs/code-design.md)
-- [Spec 1 proposal and review questions](openspec/changes/offline-multi-vehicle-ledger/proposal.md), [publishing](docs/publishing.md)
+No project license has been selected. Public visibility alone grants no general
+open-source license. OpenSpec is a development dependency. The official
+Fission-AI/OpenSpec 1.14.0 CLI generated `.agents/skills/openspec-*` and
+`.agents/skills/.openspec-target`; their MIT metadata and the full
+[upstream MIT notice](docs/licenses/openspec-MIT.txt) are retained. The notice is
+legal attribution, not a fourth guide.
 
-Use the generated OpenSpec skills to plan changes before implementing them. Archive only after implementation and verification; `openspec/specs/` is intentionally empty for now.
-
-No project license has been selected. Public visibility alone does not grant a general open-source license. OpenSpec-generated files retain their [upstream MIT notice](docs/third-party-notices.md).
+The initial generation command was
+`OPENSPEC_TELEMETRY=0 npx @fission-ai/openspec@1.14.0 init --tools codex --profile core --no-animation`.
+This is provenance, not a command to rerun on each checkout. Gitleaks is MIT-licensed;
+its executable is not committed. Its pinned version, official source and digests
+are in [the installer](scripts/security/install-gitleaks.sh). No private project
+code, personal correspondence, live vehicle payloads or proprietary integration
+implementation was copied into this repository.

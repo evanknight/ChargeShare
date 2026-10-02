@@ -4,7 +4,7 @@ This is contributor guidance for future changes, adapted from the user-supplied
 *Guide to Writing Clean, Maintainable Code and Architectural Design*
 (`deep-research-report.md`, supplied 2026-10-02). It is not an implementation
 approval or a new product specification. Read it with [AGENTS.md](../AGENTS.md),
-[security](security.md), the approved OpenSpec change, and the actual code/tests.
+[security](../SECURITY.md), the approved OpenSpec change, and the actual code/tests.
 The guidance is self-contained. External source names are attribution, not
 instructions to leave the repository or start additional work.
 
@@ -14,7 +14,7 @@ instructions to leave the repository or start additional work.
   Start with a proposal for new behavior; implementation needs explicit approval.
 - Inspect the existing public API, callers, tests and relevant `.agents/skills`
   before selecting a design. Do not infer the current implementation from older
-  planning text. Retained OpenSpec history and [proposed architecture](architecture.md)
+  planning text. Retained OpenSpec history and [architecture](architecture.md)
   describe some components that do not exist.
 - State what is implemented, what is only proposed, and what this change excludes.
   A design guide does not authorize a refactor, dependency, live integration,
@@ -26,7 +26,7 @@ instructions to leave the repository or start additional work.
   requirement, surface the conflict and ask for a decision rather than guessing.
 
 Today's implemented boundary is the synthetic, in-memory offline Rust ledger.
-[Its domain contract](offline-ledger.md) and
+[Its domain contract](architecture.md#implemented-offline-ledger) and
 [acceptance suite](../crates/chargeshare-core/tests/offline_spec1.rs) define current
 behavior. Receiver integration, persistence, authentication, tariffs, statements
 and UI are future work requiring separately reviewed specs.
@@ -54,10 +54,9 @@ Use self-documenting code instead:
   in repository Markdown or the approved change's design, linked from relevant
   docs. Keep that documentation aligned with code and tests.
 
-This documentation-only change does not remove existing source comments. A later
-approved code change must follow the rule above. If a required license notice,
-generated file convention, safety obligation or tool requirement requires a code
-comment, preserve the required content and ask how to resolve the conflict;
+Existing source comments are retained; future approved code changes must follow
+the rule above. If a required license notice, generated file convention, safety
+obligation or tool requirement requires a code comment, preserve the required content and ask how to resolve the conflict;
 do not silently remove it or invent an exception.
 
 ## 3. Keep a small facade and cohesive domain modules
@@ -212,7 +211,7 @@ Before publishing, review the exact diff and complete this checklist:
 - [ ] Applicable checks below pass; blocked or unrun checks are disclosed explicitly.
 - [ ] Documentation and public examples use only synthetic data and match current behavior.
 
-Follow [security](security.md) and [testing](testing.md) for setup and full rules:
+Follow [security](../SECURITY.md) and [testing](testing.md) for setup and full rules:
 
 ```sh
 npm run spec:validate

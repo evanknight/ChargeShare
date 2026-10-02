@@ -1,10 +1,15 @@
-# Proposed architecture
+# Architecture and domain contract
 
-> Proposed architecture and background research, not an approved implementation spec.
-> Live collection, storage, billing and user access are outside Spec 1. Review [the fresh offline multi-vehicle proposal](../openspec/changes/offline-multi-vehicle-ledger/proposal.md)
-> for its retained review context; later features need separately reviewed specs.
+ChargeShare currently implements an in-memory, synthetic multi-vehicle Rust
+ledger in [chargeshare-core](../crates/chargeshare-core/src/lib.rs). Spec 1 was
+approved and implemented on 2026-10-02. There is no executable application,
+live receiver, account integration, database, UI or runtime dependency.
+Owner/vehicle scope checks are domain invariants, not authentication or approved
+cross-owner sharing. Nothing calculates money owed or certifies a meter.
 
-This is a design for later implementation. No receiver or application is deployed.
+The [active OpenSpec change](../openspec/changes/offline-multi-vehicle-ledger/proposal.md)
+retains its original review context. The contract below describes implemented
+behavior; later integrations require separately reviewed specs and explicit approval.
 
 ## Architecture at a glance
 
@@ -63,47 +68,184 @@ public reachability and security. The website must use authenticated application
 access, never direct public database access; owner visibility remains a review
 question rather than approved cross-owner sharing.
 
-## Data flow and trust boundaries
+## Implemented offline ledger
 
-1. Each separately approved vehicle sends Fleet Telemetry to Tesla's official receiver over its supported authenticated transport.
-2. An ingress allowlist is enforced before any raw-payload persistence or logging. Unknown vehicle payloads are rejected without retention; the receiver must have no earlier unfiltered payload sink. Accepted evidence is persisted on encrypted private storage, then a small Rust processor normalizes it and records event-time and receipt-time separately.
-3. SQLite holds immutable evidence references, derived sessions, versioned tariffs and review decisions. Replay is deterministic and transactional.
-4. A private authenticated session view and CSV exporter present quality flags, manual shared-charger labels and reproducible monthly estimates.
+All public examples and tests are fictional. Callers must keep real vehicle data
+out of this milestone.
 
-One always-on host with persistent storage is sufficient for this scale. Keep mTLS/WebSocket termination at the official receiver; a generic TLS-terminating reverse proxy must not silently remove Tesla's authentication guarantees. The future dashboard is private. The only public surfaces would be the required telemetry listener and Tesla's public-key discovery path. Do not expose the database, raw files, command proxy or debug endpoints.
+### Accepted input
 
-## Language boundary
+Construct `OwnerId`, `VehicleId` and `ConnectionId` from synthetic aliases of
+1–64 ASCII letters, digits, underscores or hyphens. A vehicle has exactly one
+owner; registering an alias twice is rejected, even with the same owner. Alias
+and identity errors never echo rejected values. An event requires a configured
+vehicle and an explicit connection alias. Positions are unique within each
+vehicle, across all its connections. Time is a synthetic signed integer tick.
+There is no wall-clock, automatic closing timeout or Tesla payload parser.
 
-Implement ChargeShare ingestion adapters, session reconstruction, tariff calculations, private view and CSV in Rust. Keep Tesla's official Go receiver as a separate external service; do not rewrite its vehicle protocol. The current Cargo workspace contains only an empty core library. SQLite and the private view remain proposed integrations, not dependencies that have been selected or wired yet. Node.js/npm runs OpenSpec and development checks, not the application backend.
+Energy accepts unsigned ASCII decimal kWh with up to six fractional digits
+(one milliwatt-hour per internal unit). Whole digits are required. No sign,
+whitespace, exponent, NaN, infinity or excess precision is accepted. The maximum
+is 18,446,744,073,709.551615 kWh. Parsing and addition fail explicitly on overflow;
+no floating-point addition or silent rounding occurs. `CounterReading::parse_kwh`
+stores either exact energy or a safe rejected-counter reason, never the raw text.
 
-## Proposed records
+### Replay and evidence
 
-- Raw event: private vehicle identity, source timestamp, receipt timestamp, field/value/unit, invalid status, payload hash, original evidence reference, schema version
-- Counter segment: valid baseline/end sample, nonnegative deltas, timestamp interval, reset or gap reason
-- Session: synthetic internal ID, connection evidence, charge intervals, AC/DC status, segments, start/end uncertainty, quality flags, manual charger label and review notes
-- Tariff version: currency, IANA timezone, effective dates, rate windows, calendar/holiday rules and agreed variable charges
-- Statement revision: month, session IDs and versions, tariff versions, energy/cost breakdown, quality decisions, rounding policy and generation time
+`Ledger::ingest` partitions evidence by vehicle before deduplication. Identical
+repeats at one position are no-ops. Distinct payloads at the same vehicle position
+are retained as conflicts: every connection mentioned there is held, and none of
+the conflicting payloads is selected as a measurement or boundary. Each candidate
+creates an uncertainty barrier at its time/position, breaking the counter chain
+and retaining DC/ambiguous/rejected-counter reasons. Replay orders
+uncontested events by `(time, position)` within each connection. Session identity
+is the pair `(vehicle, connection)`, so late evidence cannot move a review to a
+different session. Connection aliases must not be reused for another connection.
 
-Actual VINs and raw payloads are runtime private data, never repository fixtures. UI/CSV uses internal session and vehicle aliases by default.
+Synthetic `Start` and `End` events are explicit boundaries. A valid counter on
+those events is the baseline/terminal sample. `Pause` and `Resume` stay in the
+same connection. AC markers without a sample keep the cumulative counter chain;
+invalid counter or non-AC evidence breaks it. Deltas never cross a connection.
+A rollback counts no negative delta, retains valid positive observed deltas and
+holds the entire session. Missing baseline, terminal sample or boundary, rejected
+counters, conflicts and malformed boundary ordering remain visible quality flags.
+Silence does not supply a boundary, a sample or zero consumption. Observed deltas
+are incomplete evidence when any flags remain, not an invented complete total.
 
-## Energy and session decisions
+Any DC or ambiguous charge-type evidence excludes the session from shared-charger
+eligibility. Only complete, uncontested AC sessions explicitly classified
+`SharedCharger` are eligible. All sessions default to `Unconfirmed`; `OtherCharger`
+is also excluded. Classification never clears quality flags. `sessions`,
+`summary` and `classify` require an explicit configured vehicle scope; a target
+for another vehicle is rejected without mutation. There is no combined-owner
+query. Each summary includes scoped owner/vehicle, observed and eligible energy,
+held/excluded reasons. Every session and summary carries an explicit synthetic,
+physically unvalidated evidence label.
 
-Use cumulative `ACChargingEnergyIn` differences within a validated counter segment. `ACChargingPower`, `DetailedChargeState` and `ChargingCableType` help explain activity and eligibility. Begin with conservative proposed reporting intervals, then validate actual changed-value behavior. Absence of messages is not proof of zero consumption or the end of a session.
+### Real-telemetry gap
 
-Reconnects, pauses and restarts must not create duplicate billable energy. Sort by event time with deterministic tie-breaking, retain receipt order for diagnostics, deduplicate identical events and replay on late arrivals. A counter rollback starts a candidate new segment and blocks finalization until its meaning is resolved. Do not add a last power reading across a long gap or extrapolate from state of charge.
+These counter, boundary and charge-type semantics are a fixture contract. They
+are not claims about Tesla's production counter resets, samples or session state.
+The actual Go receiver, adapter, durable ingestion and manual real-car validation
+remain separate approved future specs. No location, credentials, account IDs,
+vehicle controls, tariffs, statements or payments are implemented.
 
-## Pricing decisions
+## Measurement boundary
 
-Split measured intervals at tariff boundaries, midnight, month-end and tariff effective dates in the configured IANA timezone. Store UTC instants; local repeated/skipped hours must map unambiguously. Use decimal arithmetic and round the statement under an explicit policy. A short boundary-crossing interval can use a documented estimate; a long ambiguous interval remains held for review or shows a range.
+Physical accuracy is unvalidated. Tesla describes `ACChargingEnergyIn` as
+charger-measured AC-session energy; battery-side `charge_energy_added` measures a
+different boundary. Neither signal establishes utility-certified accuracy.
+Validate the actual vehicle/firmware, units, resets, latency and final samples
+before using real telemetry for an agreed reimbursement estimate.
 
-Tariffs and measurement decisions remain versioned so a statement is reproducible. A review correction creates a new revision; it must not silently change a previously exported total. Payment execution is outside the product.
+Do not add a generic charging-loss multiplier. Upstream wiring, charger standby,
+plugged-in auxiliary consumption and billing-meter boundaries may differ. A
+permitted independent AC-energy reference is needed to quantify a systematic
+difference. Without one, retain the unvalidated label and agree that limitation
+before reimbursement. A parser or simulated receiver test cannot establish
+physical accuracy. See the [manual validation gate](testing.md#manual-real-car-validation-gate).
 
-## Alternatives deferred
+## Future integrations
 
-- Battery energy (`charge_energy_added`) is a different measurement boundary and is unsuitable as an unexplained substitute for AC-input energy
-- Repeated Fleet API polling or waking the vehicle adds cost and does not supply the intended telemetry evidence
-- Automatic GPS geofencing adds sensitive data collection before it is needed; manual shared-charger confirmation is the first-version gate
-- Charger-side integration may provide a better meter reference later, subject to owner permission and hardware capability
-- Broker choice, extra services and multi-tenant database design remain deferred until the receiver handoff and reliability requirements are reviewed
+Everything in this section is proposed, unimplemented and outside Spec 1.
+It records requirements for later review, not permission to build or connect them.
 
-See [initial plan](initial-plan.md) for background and source attribution, and [measurement](measurement.md) for validation limits.
+### Data flow and trust boundaries
+
+1. Each separately approved vehicle sends Fleet Telemetry to Tesla's official
+   receiver over its supported authenticated transport.
+2. Enforce the vehicle ingress allowlist before any raw-payload persistence,
+   receiver sink, payload log or broker storage. Reject unknown vehicles without
+   retention. Persist accepted evidence on encrypted private storage; a Rust
+   adapter normalizes it and records event time and receipt time separately.
+3. SQLite is a proposed private store for evidence references, derived sessions,
+   versioned tariffs and review decisions. Replay must be deterministic,
+   transactional and recoverable after a crash; retain durable processor offsets.
+4. An authenticated private view and CSV exporter would show aliases, quality
+   flags, manual shared-charger labels and reproducible monthly estimates.
+   Owner visibility and cross-owner sharing need their own reviewed policy.
+
+One always-on host with persistent storage may suffice. Keep mTLS/WebSocket
+termination at the official Go receiver; a generic TLS-terminating reverse proxy
+must not remove authentication guarantees. A static website cannot receive this
+stream. The only proposed public surfaces are the required listener and public-key
+discovery path. Never expose the database, raw files, command proxy or debug endpoints.
+Neither cloud nor home hosting, nor a dispatcher/broker, has been selected.
+
+### Language and records
+
+Implement future ChargeShare adapters, session reconstruction, pricing, private
+view and CSV in Rust. Keep the official Go receiver as a separate external
+service; do not rewrite its protocol. Node.js/npm is development tooling only.
+SQLite, persistence and the private view are not current dependencies.
+
+Proposed records:
+
+- Raw event: private vehicle identity, source/receipt timestamps, field/value/unit,
+  invalid status, payload hash, original evidence reference and schema version
+- Counter segment: valid baseline/end sample, nonnegative deltas, timestamp
+  interval and reset/gap reason
+- Session: internal ID, connection/charge evidence, AC/DC state, segments,
+  boundary uncertainty, quality flags, charger label and review notes
+- Tariff version: currency, IANA timezone, effective dates, rate windows,
+  calendar/holiday rules and agreed variable charges
+- Statement revision: month, session/tariff versions, energy/cost breakdown,
+  quality decisions, rounding policy and generation time
+
+Real VINs and raw payloads remain private runtime data, never fixtures. UI/CSV
+should use aliases by default. Public repository data rules are in [SECURITY.md](../SECURITY.md).
+
+### Energy, reliability and pricing
+
+Use cumulative `ACChargingEnergyIn` deltas only within a validated segment.
+`ACChargingPower`, `DetailedChargeState` and `ChargingCableType` may explain
+activity and eligibility. Validate actual changed-value behavior and reporting
+intervals; absence of messages proves neither zero consumption nor a session end.
+Reconnects, pauses, restarts, duplicates and late events must not double-count.
+Unresolved rollbacks block finalization. Never fill a long gap with the last
+power reading or state of charge. Vehicle buffering is finite; extended outages
+can lose evidence, so collection health, receipt and durability gaps must be visible.
+
+Split pricing intervals at tariff boundaries, midnight, month-end and effective
+dates using the configured IANA timezone. Store UTC instants and handle repeated
+or skipped local hours unambiguously. Use decimal arithmetic and an agreed
+currency rounding policy. Fixed/demand charges, tiers and solar/net-metering
+require separate allocation decisions.
+
+A short, explicitly bounded interpolation is estimated. A long cross-rate gap
+holds the session or shows a range. A cumulative endpoint may restore energy
+without restoring timing; never apply the start-time rate to an overnight session.
+Version tariffs and review decisions so exported totals stay reproducible.
+Corrections create a new statement revision. Statements are review aids, not
+automatic invoicing, payment authorization or legal determinations.
+
+### Live preflight and deferred alternatives
+
+Before any separately approved live trial, verify:
+
+- Actual firmware/signal support, counter/reset and session semantics
+- Regional app registration, authorized host/domain, exact callbacks, public-key
+  discovery and virtual-key pairing requirements
+- Minimal telemetry-configuration permissions, OAuth state validation, atomic
+  refresh-token rotation and private server-side secret storage
+- Receiver transport, persistent storage, authenticated access and explicit
+  stop/revoke, recovery and rollback procedures
+- Agreed tariff/currency/timezone, measurement uncertainty, hosting/domain/API
+  budget, payment setup and collection-health/billing-cap alerts
+
+Do not use routine Fleet API polling or wake a car to collect reimbursement data.
+Do not assume charging-history APIs cover private-home AC charging. Automatic
+GPS geofencing adds sensitive collection; manual shared-charger confirmation is
+preferred before any location feature. Charger-side metering may offer a useful
+independent reference later with permission. Extra services and multi-tenant
+storage remain deferred. Vehicle controls and payment execution are outside scope.
+
+### Background attribution
+
+Earlier research checked Tesla's official documentation on 2026-10-02:
+Fleet Telemetry available data, setup/system behavior and receiver configuration;
+Fleet API FAQ/staging limits, authentication scopes, authorization/refresh tokens,
+virtual keys, onboarding, billing/limits, best practices and charging-history
+limitations. These names preserve provenance without external navigation.
+Historical prices, firmware cutoffs and proposed sampling settings are not
+current requirements; reverify them in a separately approved integration spec.

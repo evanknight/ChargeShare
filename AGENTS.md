@@ -1,6 +1,6 @@
 # ChargeShare contributor guidance
 
-This is a public, planning-first repository. Read README.md, docs/security.md and the active OpenSpec change before editing.
+This is a public repository with an offline synthetic Rust ledger. Read README.md, SECURITY.md and the active OpenSpec change before editing.
 
 ## Overall code design goal
 
@@ -17,5 +17,5 @@ Do not add comments to authored code, including Rust doc comments. Make intent c
 - Do not register a Tesla app, pair keys, authorize OAuth, deploy, incur costs, or add vehicle-control features without a separate explicit request.
 - Preserve the distinction between proposed behavior and implemented functionality. Keep unimplemented OpenSpec tasks unchecked.
 - Use the generated OpenSpec skills under .agents/skills. Start with a proposal and scenarios, then implement an approved change.
-- Run npm run spec:validate and the security checks described in docs/security.md before a commit. Review the exact staged diff and paths as well as scanner output. Do not bypass failing hooks.
+- Run npm run spec:validate and the security checks described in SECURITY.md before a commit. Review the exact staged diff and paths as well as scanner output. Do not bypass failing hooks.
 - Treat every energy total as a measured or estimated quantity with a stated boundary and quality. Never advertise utility-meter accuracy without evidence.
