@@ -42,6 +42,7 @@ Tesla registration, authorization, key pairing, deployment and spending require 
 ## References, when needed
 
 - Earlier background research: [initial plan](docs/initial-plan.md), [architecture](docs/architecture.md), [measurement limits](docs/measurement.md)
+- Contributor design guidance: [code and architecture design for coding agents](docs/code-design.md)
 - [Spec 1 proposal and review questions](openspec/changes/offline-multi-vehicle-ledger/proposal.md), [publishing](docs/publishing.md)
 
 Use the generated OpenSpec skills to plan changes before implementing them. Archive only after implementation and verification; `openspec/specs/` is intentionally empty for now.
