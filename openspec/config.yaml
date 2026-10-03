@@ -1,7 +1,9 @@
 schema: spec-driven
 
 context: |
-  ChargeShare is a single-vehicle Tesla AC charging reimbursement proof of concept.
+  ChargeShare is a multi-vehicle Tesla AC charging reimbursement proof of concept.
+  The current milestone is offline synthetic session and energy isolation only.
+  Review one spec at a time; implementation requires a later explicit request.
   This is a public repository: use synthetic examples, never real VINs, locations,
   personal correspondence, receipts, credentials, tokens or private raw data.
   Proposed runtime: official Tesla receiver, Rust processor, SQLite, private view and CSV.

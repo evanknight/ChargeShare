@@ -1,6 +1,13 @@
-//! ChargeShare's future charging-session and reimbursement domain logic.
-//!
-//! This crate is an intentionally empty, planning-only scaffold. It does not
-//! connect to Tesla, process vehicle data, calculate bills, or execute payments.
-//! Implement approved OpenSpec requirements with synthetic tests before adding
-//! any live integration.
+mod energy;
+mod error;
+mod event;
+mod identity;
+mod ledger;
+mod session;
+
+pub use energy::{CounterProblem, Energy};
+pub use error::LedgerError;
+pub use event::{ChargeType, CounterReading, Event, EventKind};
+pub use identity::{ConnectionId, OwnerId, SessionId, VehicleId};
+pub use ledger::{Ledger, SessionReasons, Summary};
+pub use session::{ChargerClassification, EVIDENCE_LABEL, ExclusionReason, QualityFlag, Session};
